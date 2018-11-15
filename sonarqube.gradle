@@ -1,0 +1,73 @@
+
+// noinspection is used to remove some "warnings" from Android Studio
+sonarqube {
+    //noinspection GroovyAssignabilityCheck
+    properties {
+        /* Sonar needs to be informed about your libraries and the android.jar to understand that methods like
+         * onResume() is called by the Android framework. Without that information Sonar will very likely create warnings
+         * that those methods are never used and they should be removed. Same applies for libraries where parent classes
+         * are required to understand how a class works and is used. */
+        def libraries = project.android.sdkDirectory.getPath() + "/platforms/android-28/android.jar," +
+                "build/intermediates/app_classes/debug/packageAppClassesDebug/classes.jar"
+
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.projectKey", "MyAppName" // some shortcut name
+        property "sonar.projectName", "My App Name"
+        property "sonar.projectVersion", 30
+//        property "sonar.branch", "dev"
+//        property "sonar.sourceEncoding", "UTF-8"
+//        property "sonar.sources", "src/main/java,src/main/res" // first defines where the java files are, the second where the xml files are
+//        property "sonar.binaries", "build/intermediates/app_classes/debug/packageAppClassesDebug"
+//        property "sonar.libraries", libraries
+//        property "sonar.java.binaries", "build/intermediates/app_classes/debug/packageAppClassesDebug"
+//        property "sonar.java.libraries", libraries
+
+//        property "sonar.tests", "src/test/java" // where the tests are located
+//        property "sonar.java.test.binaries", "build/intermediates/app_classes/debug/packageAppClassesDebug"
+//        property "sonar.java.test.libraries", libraries
+
+//        property "sonar.scm.provider", "git"
+
+        property "sonar.jacoco.reportPaths", "build/jacoco/testDebugUnitTest.exec" // path to coverage reports
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.junit.reportsPath", "build/test-results/testDebugUnitTest" // path to junit reports
+        property "sonar.android.lint.report", "build/reports/lint-results-debug.xml" // path to lint reports
+        property "sonar.profile", "Android Lint"
+        property 'sonar.import_unknown_files', true
+//        property 'sonar.qualitygate', "Android"
+
+    }
+}
+
+import org.gradle.internal.os.OperatingSystem;
+
+task sonarComplete(type: Exec) {
+    workingDir "./"
+    def command = "../gradlew"
+    if (OperatingSystem.current().isWindows()) {
+        command = command + ".bat"
+    }
+    commandLine command, "clean", "assembleDebug", "lintDebug", "jacocoTestDebugUnitTestReport", "applyQualityGate", "sonarqube"
+}
+
+
+//task createSonarProject() << {
+////    def url = "http://localhost:9000/api/projects/create"
+////    sh "curl  ${url} -d 'name=MyProjectName&project=MyProjectKey'"
+//notify
+//        println "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+//}
+//
+//task notify(type:HttpTask){
+//    config {
+//        request.uri = 'http://something.com'
+//    }
+//    post {
+//        request.uri.path = '/notify'
+//        request.body = [event: 'activated']
+//        response.success {
+//            println 'The event notification was successful'
+//        }
+//    }
+//}
+//project.tasks.sonarqube.dependsOn(createSonarProject)
